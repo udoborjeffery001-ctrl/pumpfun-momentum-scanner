@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pump.fun Momentum Scanner</title>
+<style>
+body{font-family:system-ui;background:#0b0d10;color:#eee;margin:0}
+header{padding:22px 5%;border-bottom:1px solid #252932;position:sticky;top:0;background:#0b0d10eF;backdrop-filter:blur(8px)}
+h1{margin:0 0 6px;font-size:24px}.sub{color:#9aa1ad}
+main{padding:24px 5%;max-width:1400px;margin:auto}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.card{background:#12151a;border:1px solid #252932;border-radius:14px;padding:15px}.value{font-size:22px;font-weight:700}.label{color:#8d95a2;font-size:12px}
+table{width:100%;border-collapse:collapse;background:#12151a;border-radius:14px;overflow:hidden}
+th,td{padding:12px;border-bottom:1px solid #252932;text-align:left;font-size:13px}
+th{color:#8d95a2;font-weight:600}.pill{padding:4px 8px;border-radius:999px;background:#193a2a;color:#7ff0a9}
+.bad{background:#3b1c1c;color:#ff9b9b}.score{font-weight:800}.links a{color:#9dc1ff;margin-right:8px}
+@media(max-width:800px){.cards{grid-template-columns:1fr 1fr}table{font-size:11px}th,td{padding:8px}}
+</style>
+</head>
+<body>
+<header><h1>🚀 Pump.fun Momentum Scanner</h1><div class="sub">Under 30 min · $20K+ MC · fast buyers · low selling · holder/rug filters</div></header>
+<main>
+<div class="cards">
+ <div class="card"><div class="label">Qualified coins</div><div id="qualified" class="value">0</div></div>
+ <div class="card"><div class="label">Best momentum</div><div id="best" class="value">—</div></div>
+ <div class="card"><div class="label">Max age</div><div class="value">30m</div></div>
+ <div class="card"><div class="label">Minimum MC</div><div class="value">$20K</div></div>
+</div>
+<table><thead><tr>
+<th>Coin</th><th>Age</th><th>MC</th><th>Buyers</th><th>Buys/Sells</th><th>Holders</th><th>Snipers</th><th>Momentum</th><th>Links</th>
+</tr></thead><tbody id="rows"></tbody></table>
+</main>
+<script>
+async function load(){
+ const r=await fetch('/api/coins'); const d=await r.json(); const cs=d.coins||[];
+ const q=cs.filter(x=>x.passed); document.querySelector('#qualified').textContent=q.length;
+ document.querySelector('#best').textContent=q[0]?`${q[0].symbol} ${q[0].momentumScore}`:'—';
+ document.querySelector('#rows').innerHTML=cs.map(x=>{
+  const links=[
+    x.xUrl?`<a href="${x.xUrl}" target="_blank" rel="noreferrer">X</a>`:'',
+    x.websiteUrl?`<a href="${x.websiteUrl}" target="_blank" rel="noreferrer">Web</a>`:'',
+    `<a href="https://pump.fun/coin/${x.mint}" target="_blank" rel="noreferrer">Pump</a>`
+  ].join('');
+  return `<tr>
+  <td><b>${x.symbol}</b><br><span class="sub">${x.name}</span></td>
+  <td>${x.ageMinutes.toFixed(1)}m</td><td>$${Math.round(x.marketCapUsd).toLocaleString()}</td>
+  <td>${x.uniqueBuyers}</td><td>${x.buySellRatio.toFixed(1)}×</td>
+  <td>${x.top1Pct.toFixed(1)} / ${x.top5Pct.toFixed(1)} / ${x.top10Pct.toFixed(1)}%</td>
+  <td>${x.sniperCount}</td><td class="score">${x.momentumScore}</td>
+  <td class="links">${links}</td></tr>`;
+ }).join('') || `<tr><td colspan="9">Waiting for live Pump.fun launches…</td></tr>`;
+}
+load(); setInterval(load,3000);
+</script>
+</body></html>
